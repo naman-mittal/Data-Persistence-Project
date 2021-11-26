@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -10,18 +11,33 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
+    public Text HighScoreText;
     public Text ScoreText;
-    public GameObject GameOverText;
+    public TMP_InputField nameField;
+    public GameObject GameOverUI;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
 
-    
+    private GameObject bricks;
+
     // Start is called before the first frame update
     void Start()
     {
+        if(GameManager.Manager.scores.Count == 0)
+        {
+            HighScoreText.text = "Set a high score";
+        }
+        else
+        {
+            HighScoreText.text = $"High Score -> {GameManager.Manager.scores[0].name.ToUpper()} : {GameManager.Manager.scores[0].score}";
+        }
+
+        bricks = new GameObject();
+        bricks.name = "bricks";
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -30,8 +46,10 @@ public class MainManager : MonoBehaviour
         {
             for (int x = 0; x < perLine; ++x)
             {
+
                 Vector3 position = new Vector3(-1.5f + step * x, 2.5f + i * 0.3f, 0);
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+                brick.transform.SetParent(bricks.transform);
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
             }
@@ -70,7 +88,20 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        Destroy(bricks);
         m_GameOver = true;
-        GameOverText.SetActive(true);
+        GameOverUI.SetActive(true);
+    }
+
+    public void SaveScore()
+    {
+        GameManager.ScoreData data = new GameManager.ScoreData();
+
+        Debug.Log(nameField.name);
+        data.name = nameField.text;
+        data.score = m_Points;
+
+        GameManager.Manager.SaveScore(data);
+        SceneManager.LoadScene(0);
     }
 }

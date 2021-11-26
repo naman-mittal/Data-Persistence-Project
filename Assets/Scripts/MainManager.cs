@@ -97,11 +97,19 @@ public class MainManager : MonoBehaviour
     {
         GameManager.ScoreData data = new GameManager.ScoreData();
 
-        Debug.Log(nameField.name);
-        data.name = nameField.text;
+        if(nameField.text.Length == 0)
+        {
+            data.name = "AAA";
+        }
+        else
+        {
+            data.name = nameField.text;
+        }
+        
+        
         data.score = m_Points;
 
         GameManager.Manager.SaveScore(data);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(2);
     }
 }
